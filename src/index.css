@@ -1,0 +1,73 @@
+body {
+	margin: 0;
+	font-family:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+		'Helvetica Neue', sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	/* font-size: 14px; */
+}
+
+h1 {
+	padding-left: 15px;
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	list-style-type: none;
+	width: 50dvw;
+}
+
+.task {
+	background-color: #f2fbff;
+	width: auto;
+	height: 1.5rem;
+	border-radius: 6px;
+	box-shadow:
+		rgba(0, 0, 0, 0.05) 0px 6px 8px 0px,
+		rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+	padding: 0.5em;
+}
+
+.task input {
+	padding: 10px;
+}
+
+.add-button {
+	height: 3em;
+	border-radius: 10px;
+	font-size: 1em;
+	margin-left: 2.5em;
+}
+
+.button {
+	color: white;
+	border-radius: 7px;
+	height: 2em;
+}
+
+.delete {
+	background-color: rgb(213, 93, 93);
+}
+
+.update {
+	background-color: rgb(86, 155, 94);
+}
+
+.sort {
+	height: 3em;
+	width: 150px;
+	border-radius: 6px;
+}
+
+.active {
+	background-color: lightcyan;
+	box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.search-input {
+	/* height: 3em; */
+	font-size: 1.5em;
+}
