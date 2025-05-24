@@ -11,10 +11,12 @@
 		"format": "prettier --write ./src"
 	},
 	"dependencies": {
+		"debounce": "^2.2.0",
 		"json-server": "^0.17.4",
 		"lodash.debounce": "^4.0.8",
 		"react": "^19.0.0",
-		"react-dom": "^19.0.0"
+		"react-dom": "^19.0.0",
+		"react-router-dom": "^7.6.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.21.0",
