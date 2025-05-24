@@ -1,25 +1,26 @@
-import { useState, useEffect } from 'react';
 import { TODO_LIST_URL } from '../assets/data.env';
-import { debounce } from 'debounce';
+import debounce from 'debounce';
+import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export const ToDoList = () => {
-	const [todos, setTodos] = useState([]);
-	const [originalTodos, setoriginalTodos] = useState([]);
+	const [originalTodos, setOriginalTodos] = useState([]);
 	const [inProcess, setInProcess] = useState(false);
-	const [needReload, setNeedReload] = useState(false);
+	const [reloadTrigger, setReloadTrigger] = useState(1);
 	const [isSorted, setIsSorted] = useState(false);
+	const [searchStr, setSearchStr] = useState('');
 
-	const makeRefresh = () => setNeedReload(!needReload);
+	const makeRefresh = () => setReloadTrigger((p) => p + 1);
 
 	useEffect(() => {
 		fetch(TODO_LIST_URL)
 			.then((loadedTodos) => loadedTodos.json())
 			.then((tasks) => {
-				setTodos(tasks);
-				setoriginalTodos(tasks);
+				setOriginalTodos(tasks);
 			})
 			.catch((error) => console.log('Ошибка загрузки данных:', error));
-	}, [needReload]);
+	}, [reloadTrigger]);
 
 	const onAddTask = () => {
 		const taskName = prompt('Введите наименование задачи');
@@ -28,6 +29,8 @@ export const ToDoList = () => {
 			console.log('Задача не добавлена');
 			return;
 		}
+
+		setInProcess(true);
 
 		fetch(TODO_LIST_URL, {
 			method: 'POST',
@@ -46,19 +49,13 @@ export const ToDoList = () => {
 			.finally(() => setInProcess(false));
 	};
 
-	const onUpdateTask = (id, taskName, isDone, ifCheckbox = 0) => {
-		const newTaskName = ifCheckbox ? taskName : prompt('Отредактируйте наименование задания', taskName);
-
-		if (!newTaskName) {
-			console.log('Задача не обновлена');
-			return;
-		}
-
+	const toggleCompleteTask = (id, taskName, isDone) => {
+		setInProcess(true);
 		fetch(TODO_LIST_URL + `/${id}`, {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json;charset=utf-8' },
 			body: JSON.stringify({
-				title: newTaskName,
+				title: taskName,
 				completed: isDone,
 			}),
 		})
@@ -71,34 +68,36 @@ export const ToDoList = () => {
 			.finally(() => setInProcess(false));
 	};
 
-	//сортировка заданий из БД
-	const sortTasks = () => {
-		const sortedTodos = isSorted ? [...todos].sort((a, b) => a.id - b.id) : [...todos].sort((a, b) => a.title.localeCompare(b.title));
-		setTodos(sortedTodos);
-		setIsSorted(!isSorted);
-	};
+	const todos = useMemo(() => {
+		let todosCopy = [...originalTodos];
 
-	const filterTasks = (searchStr) => {
-		if (!searchStr) {
-			setTodos([...originalTodos]);
-			return;
+		if (isSorted) {
+			todosCopy.sort((a, b) => a.title.localeCompare(b.title));
 		}
-		const listOfTodos = [...originalTodos];
-		const filteredTodos = listOfTodos.filter((task) => task.title.toLowerCase().indexOf(searchStr.toLowerCase()) > -1);
 
-		// const filteredTodos = [...todos].filter([...todos].indexOf(searchStr) > -1);
-		setTodos(filteredTodos);
-	};
+		if (searchStr) {
+			todosCopy = todosCopy.filter((el) => el.title.toLowerCase().includes(searchStr.toLowerCase()));
+		}
+
+		return todosCopy;
+	}, [isSorted, originalTodos, searchStr]);
+
+	// TODO в строке с текстом задачи обрезать текст в конце первой строки (...), CSS
 
 	return (
 		<>
 			<button className="add-button" onClick={onAddTask} disabled={inProcess}>
 				Добавить задание
 			</button>
-			<button className={isSorted ? 'sort active' : 'sort'} onClick={sortTasks}>
+			<button
+				className={isSorted ? 'sort active' : 'sort'}
+				onClick={() => {
+					setIsSorted((prev) => !prev);
+				}}
+			>
 				Сортировка А-Я
 			</button>
-			<input className="search-input" type="text" onChange={debounce((e) => filterTasks(e.target.value), 500)}></input>
+			<input className="search-input" type="text" onChange={debounce((e) => setSearchStr(e.target.value), 500)}></input>
 			<ul className="list">
 				{todos.map(({ id, title, completed }) => (
 					<li className="task" key={id} id={id}>
@@ -106,7 +105,8 @@ export const ToDoList = () => {
 							type="checkbox"
 							defaultChecked={completed}
 							title={title}
-							onChange={(e) => onUpdateTask(id, title, e.target.checked, true)}
+							disabled={inProcess}
+							onChange={(e) => toggleCompleteTask(id, title, e.target.checked)}
 						/>
 						<Link to={`task/${id}`}>{title}</Link>
 					</li>

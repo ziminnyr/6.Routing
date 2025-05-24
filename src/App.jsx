@@ -1,4 +1,4 @@
-import { Routes, Route, Link, Outlet } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import './index.css';
 import { ToDoList } from './component/ToDoList';
 import { OneToDo } from './component/OneToDo';
