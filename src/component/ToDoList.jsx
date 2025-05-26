@@ -82,8 +82,6 @@ export const ToDoList = () => {
 		return todosCopy;
 	}, [isSorted, originalTodos, searchStr]);
 
-	// TODO в строке с текстом задачи обрезать текст в конце первой строки (...), CSS
-
 	return (
 		<>
 			<button className="add-button" onClick={onAddTask} disabled={inProcess}>
